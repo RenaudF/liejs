@@ -1,0 +1,29 @@
+{
+  "name": "liejs",
+  "version": "0.0.0",
+  "author": "Renaud Fontana <sirgzu@hotmail.com>",
+  "description": "A new take on Promises",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "devDependencies": {
+    "grunt-contrib-concat": "~0.4.0",
+    "grunt-contrib-uglify": "~0.9.1",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-connect": "~0.6.0",
+    "grunt-open": "~0.2.3",
+    "grunt": "~0.4.5",
+    "q": "~1.0.1",
+    "karma-mocha": "~0.1",
+    "karma-mocha-debug": "~0.1",
+    "karma-chai-plugins": "~0.2.1",
+    "karma-spec-reporter": "0.0.13",
+    "karma-coverage": "~0.2.4",
+    "karma-chrome-launcher": "~0.1.4",
+    "grunt-karma": "~0.8.3",
+    "karma": "~0.12.16"
+  }
+}
