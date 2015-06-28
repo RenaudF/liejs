@@ -41,18 +41,12 @@ describe('Testing promises as lies', function(){
 		spy.should.have.been.calledOnce;
 	});
 	it('should do all together', function(){
-		var goodLie = new Lie(), goodTest = {};
-		var badLie = new Lie(), badTest = {};
-		var updateTest = {};
+		var goodTest = {}, badTest = {}, updateTest = {};
 		var resolve = sinon.spy(function(value){ value.should.equal(goodTest); });
 		var reject = sinon.spy(function(value){ value.should.equal(badTest); });
 		var notify = sinon.spy(function(value){ value.should.equal(updateTest); });
-		goodLie.yes(resolve);
-		goodLie.no(reject);
-		goodLie.maybe(notify);
-		badLie.yes(resolve);
-		badLie.no(reject);
-		badLie.maybe(notify);
+		var goodLie = new Lie().yes(resolve).no(reject).maybe(notify);
+		var badLie = new Lie().yes(resolve).no(reject).maybe(notify);
 		goodLie.big = updateTest;
 		goodLie.true = goodTest;
 		badLie.big = updateTest;
