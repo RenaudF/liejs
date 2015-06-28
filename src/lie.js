@@ -1,21 +1,42 @@
 function Lie(){
 	var pending=true;
+	Object.defineProperty(this, 'pending', {get: function(){ return pending; } });
 
-	Object.defineProperty(this, 'yes', { value: function(f){ this.yes.then = f; return this; } });
-	Object.defineProperty(this, 'true', {
-		get: function(){ this.true=true; return this.yes.yet; },
-		set: function(value){ if (pending) { pending=false; this.yes.yet=value; this.yes.then.call(null, this.yes.yet);} }
-	});
+	Object.defineProperty(this, 'yes', { value: function(f){
+		this.yes.callback = f;
+		return this;
+	} });
+	Object.defineProperty(this, 'resolve', { value: function(value){
+		if (pending) {
+			pending=false;
+			this.yes.value=value;
+			if (this.yes.callback) this.yes.callback.call(null, this.yes.value);
+		}
+		return this;
+	} });
 
-	Object.defineProperty(this, 'no', { value: function(f){ this.no.then = f; return this; } });
-	Object.defineProperty(this, 'false', {
-		get: function(){ this.false=true; return this.no.yet; },
-		set: function(value){ if (pending) { pending=false; this.no.yet=value; this.no.then.call(null, this.no.yet);} }
-	});
+	Object.defineProperty(this, 'no', { value: function(f){
+		this.no.callback = f;
+		return this;
+	} });
+	Object.defineProperty(this, 'reject', { value:function(value){
+		if (pending) {
+			pending=false;
+			this.no.value=value;
+			if (this.no.callback) this.no.callback.call(null, this.no.value);
+		};
+		return this;
+	} });
 
-	Object.defineProperty(this, 'maybe', { value: function(f){ this.maybe.then = f; return this; } });
-	Object.defineProperty(this, 'big', {
-		get: function(){ this.big = this.maybe.yet; },
-		set: function(value){ if (pending) { this.maybe.yet=value; this.maybe.then.call(null, this.maybe.yet);} }
-	});
+	Object.defineProperty(this, 'maybe', { value: function(f){
+		this.maybe.callback = f;
+		return this;
+	} });
+	Object.defineProperty(this, 'notify', { value: function(value){
+		if (pending) {
+			this.maybe.value=value;
+			if (this.maybe.callback) this.maybe.callback.call(null, this.maybe.value);
+		};
+		return this;
+	} });
 }
