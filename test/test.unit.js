@@ -89,6 +89,62 @@ describe('Testing notification', function(){
 	});
 });
 
+describe('Testing chaining', function(){
+	it('should chain lies', function(){
+		var add = sinon.spy(function(x){ return x+1; });
+		var check = sinon.spy(function(x){ x.should.equal(2); });
+		var head = new Lie();
+		head.yes(add).then.yes(add).then.yes(check);
+		head.resolve(0);
+		add.should.have.been.calledTwice;
+		check.should.have.been.calledOnce;
+	});
+	it('should forward values when no handlers', function(){
+		var resolve = sinon.spy(function(value){ value.should.be.defined; });
+		var lie = new Lie().then.yes(resolve);
+		lie.resolve({});
+		resolve.should.have.been.calledOnce;
+	});
+	it('should not forward to the wrong channels', function(){
+		var resolve = sinon.spy(), reject = sinon.spy(), notify = sinon.spy();
+		// resolve
+		var lie = new Lie();
+		lie.then.yes(resolve).no(reject).maybe(notify);
+		lie.resolve();
+		resolve.should.have.been.calledOnce;
+		reject.should.not.have.been.called;
+		notify.should.not.have.been.called;
+		// reject
+		lie = new Lie();
+		lie.then.yes(resolve).no(reject).maybe(notify);
+		lie.reject();
+		resolve.should.have.been.calledOnce;
+		reject.should.have.been.calledOnce;
+		notify.should.not.have.been.called;
+		// notify
+		lie = new Lie();
+		lie.then.yes(resolve).no(reject).maybe(notify);
+		lie.notify();
+		resolve.should.have.been.calledOnce;
+		reject.should.have.been.calledOnce;
+		notify.should.have.been.calledOnce;
+	});
+	it('should be possible to switch channel', function(){
+		var resolve = sinon.spy(function(x){ console.log('resolve',x++); this.then.notify(x); return x; });
+		var notify = sinon.spy(function(x){ console.log('notify',x++); this.then.reject(x); return x; });
+		var reject = sinon.spy(function(x){ console.log('reject',x++); this.then.resolve(x); return x; });
+		var lie = new Lie();
+		lie.yes(resolve).maybe(notify).no(reject)
+			.then.yes(resolve).maybe(notify).no(reject)
+			.then.yes(resolve).maybe(notify).no(reject)
+			.then.yes(resolve).maybe(notify).no(reject);
+		lie.resolve(0);
+		resolve.should.have.been.calledThrice;
+		reject.should.have.been.calledOnce;
+		notify.should.have.been.calledOnce;
+	});
+});
+
 describe('Testing it all together', function(){
 	it('should do all together', function(){
 		var goodTest = {}, badTest = {}, updateTest = {};
