@@ -8,6 +8,10 @@ function Lie(){
 	var then;
 	Object.defineProperty(this, 'then', {get: function(){ then = then || new Lie(); return then; } });
 
+	var autoforward;
+	Object.defineProperty(this, 'forward', {get: function(){ autoforward=true; return this; } });
+	Object.defineProperty(this, 'block', {get: function(){ autoforward=false; return this; } });
+
 	function identity(x){ return x; }
 
 	Object.defineProperty(this, 'yes', { value: function(f){
@@ -20,7 +24,7 @@ function Lie(){
 			pending=false;
 			this.yes.in = value;
 			this.yes.out = this.yes.callback.call(this, value);
-			if (then) then.resolve(this.yes.out);
+			if (autoforward && then) then.resolve(this.yes.out);
 		}
 		return this;
 	} });
@@ -35,7 +39,7 @@ function Lie(){
 			pending=false;
 			this.no.in = value;
 			this.no.out = this.no.callback.call(this, value);
-			if (then) then.reject(this.no.out);
+			if (autoforward && then) then.reject(this.no.out);
 		};
 		return this;
 	} });
@@ -49,7 +53,7 @@ function Lie(){
 		if (pending) {
 			this.maybe.in = value;
 			this.maybe.out = this.maybe.callback.call(this, value);
-			if (then) then.notify(this.maybe.out);
+			if (autoforward && then) then.notify(this.maybe.out);
 		};
 		return this;
 	} });

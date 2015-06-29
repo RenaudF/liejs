@@ -94,7 +94,7 @@ describe('Testing chaining', function(){
 		var add = sinon.spy(function(x){ return x+1; });
 		var check = sinon.spy(function(x){ x.should.equal(2); });
 		var head = new Lie();
-		head.yes(add).then.yes(add).then.yes(check);
+		head.forward.yes(add).then.forward.yes(add).then.yes(check);
 		head.resolve(0);
 		add.should.have.been.calledTwice;
 		check.should.have.been.calledOnce;
@@ -109,21 +109,21 @@ describe('Testing chaining', function(){
 		var resolve = sinon.spy(), reject = sinon.spy(), notify = sinon.spy();
 		// resolve
 		var lie = new Lie();
-		lie.then.yes(resolve).no(reject).maybe(notify);
+		lie.forward.then.yes(resolve).no(reject).maybe(notify);
 		lie.resolve();
 		resolve.should.have.been.calledOnce;
 		reject.should.not.have.been.called;
 		notify.should.not.have.been.called;
 		// reject
 		lie = new Lie();
-		lie.then.yes(resolve).no(reject).maybe(notify);
+		lie.forward.then.yes(resolve).no(reject).maybe(notify);
 		lie.reject();
 		resolve.should.have.been.calledOnce;
 		reject.should.have.been.calledOnce;
 		notify.should.not.have.been.called;
 		// notify
 		lie = new Lie();
-		lie.then.yes(resolve).no(reject).maybe(notify);
+		lie.forward.then.yes(resolve).no(reject).maybe(notify);
 		lie.notify();
 		resolve.should.have.been.calledOnce;
 		reject.should.have.been.calledOnce;
@@ -134,14 +134,20 @@ describe('Testing chaining', function(){
 		var notify = sinon.spy(function(x){ console.log('notify',x++); this.then.reject(x); return x; });
 		var reject = sinon.spy(function(x){ console.log('reject',x++); this.then.resolve(x); return x; });
 		var lie = new Lie();
-		lie.yes(resolve).maybe(notify).no(reject)
-			.then.yes(resolve).maybe(notify).no(reject)
-			.then.yes(resolve).maybe(notify).no(reject)
+		lie.forward.yes(resolve).maybe(notify).no(reject)
+			.then.forward.yes(resolve).maybe(notify).no(reject)
+			.then.forward.yes(resolve).maybe(notify).no(reject)
 			.then.yes(resolve).maybe(notify).no(reject);
 		lie.resolve(0);
 		resolve.should.have.been.calledThrice;
 		reject.should.have.been.calledOnce;
 		notify.should.have.been.calledOnce;
+	});
+	it('should support asynchronous forwarding', function(done){
+		var resolve = sinon.spy(function(){ setTimeout(this.then.resolve.bind(this.then),500); });
+		var lie = new Lie();
+		lie.yes(resolve).then.yes(done);
+		lie.resolve();
 	});
 });
 
